@@ -1,0 +1,4 @@
+interface:
+  display_name: "Crypto Asset Report"
+  short_description: "Configure, refresh, and export crypto asset reports"
+  default_prompt: "Use $crypto-asset-report to configure accounts, refresh my asset snapshot, and optionally write the results to Notion or Obsidian."

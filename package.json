@@ -1,0 +1,23 @@
+{
+  "name": "26-03-08-codex-test-project",
+  "version": "1.0.0",
+  "description": "Crypto asset monitoring and reporting dashboard for CEX, onchain wallets, Notion, and Obsidian.",
+  "main": "app.js",
+  "directories": {
+    "lib": "lib"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js",
+    "report": "node scripts/run-report.js",
+    "config": "node scripts/manage-config.js"
+  },
+  "keywords": [],
+  "author": "CodeX Assistant",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "ethers": "^6.16.0",
+    "playwright": "^1.58.2"
+  }
+}

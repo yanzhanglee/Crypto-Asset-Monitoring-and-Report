@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Crypto Asset Tracker Config</title>
+    <link rel="icon" type="image/svg+xml" href="./assets/favicon-btc.svg?v=1" />
+    <link rel="shortcut icon" href="./assets/favicon-btc.svg?v=1" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="page-shell">
+      <header class="hero">
+        <div class="hero-copy">
+            <div class="hero-row">
+              <h1>加密资产自动统计</h1>
+              <div class="quick-actions">
+                <button class="top-action-button top-action-primary" id="refresh-stats" type="button">刷新统计</button>
+                <button class="top-action-button top-action-secondary" id="toggle-privacy" type="button">截图模式</button>
+                <button class="top-action-button top-action-secondary" data-action="sync-notion" type="button">
+                  <span>同步 Notion</span>
+                </button>
+                <button class="top-action-button top-action-secondary" data-action="sync-obsidian" type="button">
+                  <span>写入 Obsidian</span>
+                </button>
+                <button
+                  class="top-action-button top-action-secondary"
+                  id="open-config"
+                  data-tab-target="config"
+                type="button"
+                role="tab"
+                aria-selected="false"
+              >
+                <span>设置</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <main class="layout">
+        <section class="tab-shell">
+          <section class="tab-panel" id="panel-config" data-tab-panel="config" role="tabpanel">
+            <div class="tabbar tabbar-single tabbar-back">
+              <button class="tab-link" data-tab-target="stats" type="button">返回统计</button>
+            </div>
+            <div class="workspace-grid">
+              <section class="panel panel-hero panel-meta collapsible-panel is-collapsed">
+                <div class="panel-head compact-head">
+                  <div>
+                    <p class="section-kicker">Workspace</p>
+                    <h2>基础设置</h2>
+                  </div>
+                  <button class="ghost-button compact-button collapse-button" type="button" data-collapse-toggle aria-expanded="false">展开</button>
+                </div>
+                <div class="panel-body">
+                <form id="meta-form" class="grid-form">
+                  <label>
+                    <span>Alchemy API Key</span>
+                    <input type="password" name="alchemyApiKey" placeholder="用于 EVM 代币自动发现" />
+                  </label>
+                  <label>
+                    <span>Zerion API Key</span>
+                    <input type="password" name="zerionApiKey" placeholder="用于 DeFi 仓位识别" />
+                  </label>
+                  <label class="full-width">
+                    <span>Notion Token</span>
+                    <input type="password" name="notionToken" placeholder="用于写入 Notion Database" />
+                  </label>
+                  <label class="full-width">
+                    <span>Obsidian Vault 路径</span>
+                    <input type="text" name="obsidianVaultPath" placeholder="例如：/Users/yourname/Documents/Obsidian Vault" />
+                  </label>
+                  <div class="full-width advanced-settings">
+                    <details class="advanced-details">
+                      <summary>Notion 高级设置</summary>
+                      <div class="grid-form advanced-grid">
+                        <label>
+                          <span>净值汇总 Database ID</span>
+                          <input type="text" name="notionSummaryDatabaseId" placeholder="净值汇总 Database ID" />
+                        </label>
+                        <label>
+                          <span>账户明细 Database ID</span>
+                          <input type="text" name="notionAccountDatabaseId" placeholder="账户明细 Database ID" />
+                        </label>
+                        <label class="full-width">
+                          <span>币种明细 Database ID</span>
+                          <input type="text" name="notionAssetDatabaseId" placeholder="币种明细 Database ID" />
+                        </label>
+                        <label class="full-width">
+                          <span>净值汇总模板 Page ID</span>
+                          <input type="text" name="notionSummaryTemplateId" placeholder="用于套用 linked views 的模板 Page ID" />
+                        </label>
+                      </div>
+                    </details>
+                  </div>
+                  <div class="full-width advanced-settings">
+                    <details class="advanced-details">
+                      <summary>Obsidian 高级设置</summary>
+                      <div class="grid-form advanced-grid">
+                        <label class="full-width">
+                          <span>Obsidian 输出目录</span>
+                          <input type="text" name="obsidianRootDir" placeholder="默认：NetWorth" />
+                          <span class="field-note">系统会在这个目录下生成 <code>Weekly</code> 周报和 <code>index.md</code> 索引。</span>
+                        </label>
+                      </div>
+                    </details>
+                  </div>
+                </form>
+                </div>
+              </section>
+
+              <section class="panel panel-cex collapsible-panel is-collapsed">
+                <div class="panel-head">
+                  <div>
+                    <p class="section-kicker">CEX</p>
+                    <h2>交易所账户</h2>
+                  </div>
+                  <div class="panel-head-actions">
+                    <button class="ghost-button compact-button collapse-button" type="button" data-collapse-toggle aria-expanded="false">展开</button>
+                    <button class="ghost-button" id="add-cex" type="button">新增交易所</button>
+                  </div>
+                </div>
+                <div class="panel-body">
+                  <div id="cex-list" class="stack"></div>
+                </div>
+              </section>
+
+              <section class="panel panel-wallets collapsible-panel is-collapsed">
+                <div class="panel-head">
+                  <div>
+                    <p class="section-kicker">On-chain</p>
+                    <h2>链上钱包</h2>
+                  </div>
+                  <div class="panel-head-actions">
+                    <button class="ghost-button compact-button collapse-button" type="button" data-collapse-toggle aria-expanded="false">展开</button>
+                    <button class="ghost-button" id="add-wallet" type="button">新增钱包</button>
+                  </div>
+                </div>
+                <div class="panel-body">
+                  <div id="wallet-list" class="stack"></div>
+                </div>
+              </section>
+
+              <section class="panel panel-actions collapsible-panel is-collapsed">
+                <div class="panel-head compact-head">
+                  <div>
+                    <p class="section-kicker">Validation</p>
+                    <h2>校验与执行</h2>
+                  </div>
+                  <button class="ghost-button compact-button collapse-button" type="button" data-collapse-toggle aria-expanded="false">展开</button>
+                </div>
+                <div class="panel-body">
+                <form id="validation-form" class="grid-form">
+                  <label>
+                    <span>最小余额阈值</span>
+                    <input type="number" step="0.0001" name="minBalanceThreshold" placeholder="0" />
+                  </label>
+                  <label>
+                    <span class="label-with-info">
+                      <span>忽略代币列表</span>
+                      <span
+                        class="info-badge"
+                        tabindex="0"
+                        data-tooltip="当前默认值会直接显示在输入框中。当前按代币名称匹配，用于首页过滤展示，不影响底层原始采集结果。"
+                        >i</span
+                      >
+                    </span>
+                    <input type="text" name="ignoredTokens" placeholder="例如：NFT,DUST,POINTS" />
+                  </label>
+                  <label class="full-width">
+                    <span>重点保留资产</span>
+                    <input type="text" name="focusAssets" placeholder="例如：BTC,ETH,SOL,USDT,BNB" />
+                    <span class="field-note">这些资产会优先保留在首页展示，即使低于最小余额阈值也不会被过滤。</span>
+                  </label>
+                  <label class="full-width">
+                    <span class="label-with-info">
+                      <span>稳定币列表</span>
+                      <span
+                        class="info-badge"
+                        tabindex="0"
+                        data-tooltip="当前会直接显示系统默认稳定币名单。现阶段按代币符号识别，不校验链上合约地址，所以这里还不能精确展示每条链的合约信息。"
+                        >i</span
+                      >
+                    </span>
+                    <input type="text" name="stablecoinSymbols" placeholder="例如：USDT,USDC,DAI,FDUSD,USD1" />
+                    <span class="field-note">用于计算“稳定币资产 / 非稳币资产 / 非稳币占比”。当前按代币符号识别；若需更严格口径，后续可升级为按链和合约地址校验。</span>
+                  </label>
+                  <label>
+                    <span>参考成本 (RMB)</span>
+                    <input type="number" step="0.01" name="referenceCost" placeholder="例如：758000" />
+                  </label>
+                  <label>
+                    <span>目标利润 (RMB，可选)</span>
+                    <input type="number" step="0.01" name="targetProfit" placeholder="例如：300000" />
+                  </label>
+                </form>
+                <div class="toolbar">
+                  <button class="primary-button" id="save-config" type="button">保存到浏览器</button>
+                  <button class="primary-button" id="collect-binance" type="button">采集全部资产</button>
+                  <button class="secondary-button" data-action="sync-notion" type="button">同步到 Notion</button>
+                  <button class="secondary-button" data-action="sync-obsidian" type="button">写入 Obsidian</button>
+                  <button class="secondary-button" id="export-config" type="button">导出 JSON</button>
+                  <label class="secondary-button file-button">
+                    导入 JSON
+                    <input id="import-config" type="file" accept="application/json" hidden />
+                  </label>
+                  <button class="secondary-button" id="reset-config" type="button">重置示例</button>
+                </div>
+                <p id="run-status" class="status-text">
+                  运行方式：执行 <code>node server.js</code> 后访问本地页面。采集请求会通过本地服务转发到 Binance / Bitget / OKX API，并读取链上钱包余额；如需同步 Notion 或写入 Obsidian，可直接在设置中填写对应配置。
+                </p>
+                </div>
+              </section>
+
+              <section class="panel preview-panel panel-preview collapsible-panel is-collapsed">
+                <div class="panel-head">
+                  <div>
+                    <p class="section-kicker">Output</p>
+                    <h2>配置预览</h2>
+                  </div>
+                  <button class="ghost-button compact-button collapse-button" type="button" data-collapse-toggle aria-expanded="false">展开</button>
+                </div>
+                <div class="panel-body">
+                  <pre id="config-preview"></pre>
+                </div>
+              </section>
+            </div>
+          </section>
+
+          <section class="tab-panel active" id="panel-stats" data-tab-panel="stats" role="tabpanel">
+            <section class="stats-shell">
+              <section class="panel stats-overview">
+                <div class="panel-head compact-head">
+                  <div>
+                    <p class="section-kicker">Snapshot</p>
+                    <h2>统计总览</h2>
+                  </div>
+                  <div class="run-chip run-chip-inline">
+                    <span class="run-chip-label">上次统计时间</span>
+                    <strong id="last-run-at">尚未统计</strong>
+                  </div>
+                </div>
+                <div id="dashboard-empty" class="empty-state">先执行一次交易所采集，下面会显示总资产、币种汇总和账户看板。</div>
+                <div id="dashboard-content" class="dashboard hidden">
+                  <div id="total-cards" class="summary-grid"></div>
+
+                  <div class="dashboard-grid">
+                    <article class="board">
+                      <div class="board-head">
+                        <h3>各币种资产</h3>
+                        <span class="board-subtitle">多账户汇总</span>
+                      </div>
+                      <div class="asset-visual-panel">
+                        <div id="asset-chart" class="asset-chart-shell"></div>
+                        <div id="asset-chart-legend" class="asset-chart-legend"></div>
+                      </div>
+                      <div class="table-shell">
+                        <table>
+                          <thead>
+                            <tr>
+                              <th>币种</th>
+                              <th>总数量</th>
+                              <th>USDT 估值</th>
+                              <th>来源</th>
+                            </tr>
+                          </thead>
+                          <tbody id="asset-table-body"></tbody>
+                        </table>
+                      </div>
+                    </article>
+
+                    <article class="board">
+                      <div class="board-head">
+                        <h3>各账户资产</h3>
+                        <div class="board-head-actions">
+                          <span class="board-subtitle">按账户归并展示</span>
+                          <button id="account-view-toggle" class="ghost-button compact-button hidden" type="button">展开全部</button>
+                        </div>
+                      </div>
+                      <div class="asset-visual-panel">
+                        <div id="account-chart" class="asset-chart-shell"></div>
+                        <div id="account-chart-legend" class="asset-chart-legend"></div>
+                      </div>
+                      <div id="account-view-hint" class="board-hint hidden"></div>
+                      <div id="account-cards" class="account-grid"></div>
+                    </article>
+                  </div>
+                </div>
+              </section>
+
+              <section class="panel preview-panel raw-panel">
+                <details class="raw-details">
+                  <summary class="raw-summary">
+                    <div>
+                      <p class="section-kicker">Raw Data</p>
+                      <h2>交易所原始结果</h2>
+                    </div>
+                    <span class="raw-toggle-hint"></span>
+                  </summary>
+                  <pre id="result-preview">尚未执行采集。</pre>
+                </details>
+              </section>
+            </section>
+          </section>
+        </section>
+      </main>
+    </div>
+    <div id="toast" class="toast hidden" role="status" aria-live="polite"></div>
+
+    <template id="cex-template">
+      <article class="card">
+        <div class="card-head">
+          <h3>CEX 账户</h3>
+          <button class="danger-link remove-item" type="button">删除</button>
+        </div>
+        <div class="grid-form">
+          <label>
+            <span>账户名称</span>
+            <input type="text" data-field="label" placeholder="例如：币安主账户" />
+          </label>
+          <label>
+            <span>交易所</span>
+            <select data-field="exchange">
+              <option value="binance">Binance</option>
+              <option value="bitget">Bitget</option>
+              <option value="okx">OKX</option>
+            </select>
+          </label>
+          <label>
+            <span>API Key</span>
+            <input type="password" data-field="apiKey" placeholder="只读权限" />
+          </label>
+          <label>
+            <span>API Secret</span>
+            <input type="password" data-field="apiSecret" />
+          </label>
+          <label>
+            <span>Passphrase</span>
+            <input type="password" data-field="passphrase" placeholder="Bitget / OKX 必填，Binance 留空" />
+          </label>
+          <label>
+            <span>账户类型</span>
+            <div class="scope-picker" data-field="accountScopeOptions"></div>
+            <input type="hidden" data-field="accountScope" />
+          </label>
+          <div class="full-width advanced-settings">
+            <details class="advanced-details">
+              <summary>高级选项</summary>
+              <div class="grid-form advanced-grid">
+                <label>
+                  <span>Recv Window(ms)</span>
+                  <input type="number" data-field="recvWindow" placeholder="默认 10000" />
+                </label>
+                <label>
+                  <span>环境</span>
+                  <select data-field="environment">
+                    <option value="production">Production</option>
+                    <option value="demo">Demo</option>
+                  </select>
+                </label>
+              </div>
+            </details>
+          </div>
+        </div>
+      </article>
+    </template>
+
+    <template id="wallet-template">
+      <article class="card">
+        <div class="card-head">
+          <h3>链上钱包</h3>
+          <button class="danger-link remove-item" type="button">删除</button>
+        </div>
+        <div class="grid-form">
+          <label>
+            <span>钱包名称</span>
+            <input type="text" data-field="label" placeholder="例如：主钱包" />
+          </label>
+          <label>
+            <span>链路模式</span>
+            <input type="text" value="EVM 自动探测（Ethereum / Arbitrum / Base / Optimism / BSC / Polygon / World Chain / X Layer）" disabled />
+            <input type="hidden" data-field="chain" value="all_evm" />
+          </label>
+          <label class="full-width">
+            <span>地址</span>
+            <input type="text" data-field="address" placeholder="链上地址" />
+          </label>
+          <div class="full-width advanced-settings">
+            <details class="advanced-details">
+              <summary>高级选项</summary>
+              <div class="grid-form advanced-grid">
+                <label>
+                  <span>RPC URL</span>
+                  <input type="text" data-field="rpcUrl" placeholder="可留空，使用默认公共 RPC" />
+                </label>
+                <label class="full-width">
+                  <span>ERC20 合约列表</span>
+                  <textarea
+                    rows="3"
+                    data-field="tokenContracts"
+                    placeholder="仅在需要指定额外代币时填写，逗号或换行分隔。支持 SYMBOL:地址，例如：&#10;USDC:0xA0b86991c6218b36c1d19d4a2e9eb0ce3606eb48&#10;USDT:0xdAC17F958D2ee523a2206206994597C13D831ec7"
+                  ></textarea>
+                </label>
+              </div>
+            </details>
+          </div>
+        </div>
+      </article>
+    </template>
+
+    <template id="defi-template">
+      <article class="card">
+        <div class="card-head">
+          <h3>DeFi 协议</h3>
+          <button class="danger-link remove-item" type="button">删除</button>
+        </div>
+        <div class="grid-form">
+          <label>
+            <span>协议名称</span>
+            <input type="text" data-field="protocol" placeholder="例如：Aave / Pendle / GMX" />
+          </label>
+          <label>
+            <span>链</span>
+            <input type="text" data-field="chain" placeholder="例如：Ethereum / Arbitrum" />
+          </label>
+          <label>
+            <span>RPC URL</span>
+            <input type="text" data-field="rpcUrl" placeholder="可留空，协议会使用默认公共 RPC" />
+          </label>
+          <label>
+            <span>关联地址</span>
+            <input type="text" data-field="address" placeholder="协议仓位对应地址" />
+          </label>
+          <label>
+            <span>仓位类型</span>
+            <input type="text" data-field="positionType" placeholder="例如：lending,lp,staking,vault" />
+          </label>
+          <label>
+            <span>查询方案</span>
+            <select data-field="resolver">
+              <option value="manual">手动定义</option>
+              <option value="zerion">Zerion API</option>
+              <option value="venus">Venus 官方合约</option>
+              <option value="defillama">DefiLlama API</option>
+              <option value="debank">DeBank API</option>
+              <option value="custom">自定义脚本</option>
+            </select>
+          </label>
+          <label>
+            <span>重点资产</span>
+            <input type="text" data-field="assets" placeholder="例如：ETH,USDC,ezETH" />
+          </label>
+          <label class="full-width">
+            <span>备注</span>
+            <textarea rows="2" data-field="notes" placeholder="例如：需要拆分本金、收益、负债"></textarea>
+          </label>
+        </div>
+      </article>
+    </template>
+
+    <script src="./app.js"></script>
+  </body>
+</html>

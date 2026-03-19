@@ -1,0 +1,6 @@
+.DS_Store
+node_modules/
+backups/
+crypto-asset-config*.json
+.env
+config.local.json

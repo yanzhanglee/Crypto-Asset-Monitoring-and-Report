@@ -1,0 +1,26 @@
+{
+  "version": "v1",
+  "meta": {
+    "alchemyApiKey": "",
+    "zerionApiKey": "",
+    "notionToken": "",
+    "obsidianVaultPath": "",
+    "obsidianRootDir": "NetWorth",
+    "notionSummaryDatabaseId": "",
+    "notionAccountDatabaseId": "",
+    "notionAssetDatabaseId": "",
+    "notionSummaryTemplateId": ""
+  },
+  "cexAccounts": [],
+  "wallets": [],
+  "defiPositions": [],
+  "validation": {
+    "minBalanceThreshold": "0",
+    "ignoredTokens": "NFT,DUST",
+    "focusAssets": "BTC,ETH,SOL,USDT,BNB",
+    "stablecoinSymbols": "USDT,USDC,BUSD,FDUSD,USDP,TUSD,USDS,USDG,DAI,PYUSD,USDE,USD1,RLUSD,GHO,FRAX,FRXUSD,LUSD,CRVUSD,USD0,USDT0,SUSDS",
+    "referenceCost": "",
+    "targetProfit": ""
+  },
+  "updatedAt": null
+}
